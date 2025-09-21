@@ -11,10 +11,14 @@ Extracts data from text using Regular Expressions:
 - Hashtags
 - Currency amounts
 - Credit card numbers
+
+If you enter your own text, the program also saves the text
+and the extracted data (with a timestamp) inside sample_texts/.
 """
 
 import re
 import os
+from datetime import datetime
 
 # -------------------------------
 # Regex extractor functions
@@ -50,9 +54,8 @@ def extract_times(text):
     pattern = r"\b(?:[01]?\d|2[0-3]):[0-5]\d(?:\s?[APap][Mm])?\b"
     return re.findall(pattern, text)
 
-
 # -------------------------------
-# Choose text source
+# Handle text source
 # -------------------------------
 
 def handle_text_choice():
@@ -71,7 +74,7 @@ def handle_text_choice():
             f.write(user_text)
 
         print(f"\nYour text has been saved at: {file_path}")
-        return user_text
+        return user_text, True  # True = user provided text
 
     elif choice == "2":
         default_text = """
@@ -84,32 +87,59 @@ def handle_text_choice():
         #HashtagExample
         """
         print("\nUsing default sample text.")
-        return default_text.strip()
+        return default_text.strip(), False
 
     else:
         print("\nInvalid choice. Please restart and select 1 or 2.")
-        return None
+        return None, False
 
+# -------------------------------
+# Save extracted data (optional)
+# -------------------------------
+
+def save_results_with_timestamp(text, results):
+    """Save the text and extracted data to a timestamped file."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    os.makedirs("sample_texts", exist_ok=True)
+    out_file = os.path.join("sample_texts", f"extracted_{timestamp}.txt")
+
+    with open(out_file, "w", encoding="utf-8") as f:
+        f.write("Original text:\n")
+        f.write(text)
+        f.write("\n\n===== Extracted Data =====\n")
+        for key, value in results.items():
+            f.write(f"{key}: {value}\n")
+        f.write("==========================\n")
+
+    print(f"\nResults saved to: {out_file}")
 
 # -------------------------------
 # Main program
 # -------------------------------
 
 def main():
-    text = handle_text_choice()
+    text, is_user_text = handle_text_choice()
     if not text:
         return
 
+    results = {
+        "Emails": extract_emails(text),
+        "Phone Numbers": extract_phone_numbers(text),
+        "URLs": extract_urls(text),
+        "HTML Tags": extract_html_tags(text),
+        "Times": extract_times(text),
+        "Hashtags": extract_hashtags(text),
+        "Currency Amounts": extract_currency_amounts(text),
+        "Credit Card Numbers": extract_credit_cards(text),
+    }
+
     print("\n===== Extracted Data =====")
-    print("Emails:", extract_emails(text))
-    print("Phone Numbers:", extract_phone_numbers(text))
-    print("URLs:", extract_urls(text))
-    print("HTML Tags:", extract_html_tags(text))
-    print("Times:", extract_times(text))
-    print("Hashtags:", extract_hashtags(text))
-    print("Currency Amounts:", extract_currency_amounts(text))
-    print("Credit Card Numbers:", extract_credit_cards(text))
+    for key, value in results.items():
+        print(f"{key}: {value}")
     print("==========================")
+
+    if is_user_text:
+        save_results_with_timestamp(text, results)
 
 if __name__ == "__main__":
     main()
