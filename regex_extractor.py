@@ -54,11 +54,13 @@ def extract_times(text):
     pattern = r"\b(?:[01]?\d|2[0-3]):[0-5]\d(?:\s?[APap][Mm])?\b"
     return re.findall(pattern, text)
 
+
 # -------------------------------
 # Handle text source
 # -------------------------------
 
 def handle_text_choice():
+    """Ask user for text or use default sample."""
     print("Choose your text source:")
     print("1. Enter your own text")
     print("2. Use the default sample text")
@@ -67,25 +69,17 @@ def handle_text_choice():
 
     if choice == "1":
         user_text = input("\nPlease type or paste your text: ")
-
-        os.makedirs("sample_texts", exist_ok=True)
-        file_path = os.path.join("sample_texts", f"extracted_{timestamp}.txt")
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(user_text)
-
-        print(f"\nYour text has been saved at: {file_path}")
         return user_text, True  # True = user provided text
 
     elif choice == "2":
-        default_text = """
-        Contact me at john.doe@example.com or (123) 456-7890.
-        Visit https://example.com for details.
-        Price: $19.99 or €45.00.
-        Meeting time: 10:30 AM or 22:15.
-        Use this card: 1234-5678-9012-3456.
-        <p>This is a paragraph</p>
-        #HashtagExample
-        """
+        default_text = (
+            "Contact me at john.doe@example.com or (123) 456-7890. "
+            "Visit https://example.com for details. "
+            "Price: $19.99 or €45.00. "
+            "Meeting time: 10:30 AM or 22:15. "
+            "Use this card: 1234-5678-9012-3456. "
+            "<p>This is a paragraph</p> #HashtagExample"
+        )
         print("\nUsing default sample text.")
         return default_text.strip(), False
 
@@ -93,8 +87,9 @@ def handle_text_choice():
         print("\nInvalid choice. Please restart and select 1 or 2.")
         return None, False
 
+
 # -------------------------------
-# Save extracted data (optional)
+# Save extracted data
 # -------------------------------
 
 def save_results_with_timestamp(text, results):
@@ -112,6 +107,7 @@ def save_results_with_timestamp(text, results):
         f.write("==========================\n")
 
     print(f"\nResults saved to: {out_file}")
+
 
 # -------------------------------
 # Main program
@@ -140,6 +136,7 @@ def main():
 
     if is_user_text:
         save_results_with_timestamp(text, results)
+
 
 if __name__ == "__main__":
     main()
