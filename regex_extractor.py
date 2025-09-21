@@ -69,7 +69,7 @@ def handle_text_choice():
         user_text = input("\nPlease type or paste your text: ")
 
         os.makedirs("sample_texts", exist_ok=True)
-        file_path = os.path.join("sample_texts", "user_text.txt")
+        file_path = os.path.join("sample_texts", f"extracted_{timestamp}.txt")
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(user_text)
 
